@@ -16,6 +16,8 @@ gameObjects.push(player);
 gameObjects.push(opponent1);
 gameObjects.push(opponent2);
 
+var fire = false;
+
 function collider(o1, o2) {
 	if (o1 === o2) {
 		return null;
@@ -41,7 +43,7 @@ function GameObject(x, y, width, height, color, direction, speed) {
 		return collider(this, o);
 	};
 	this.move = function(delta) {
-    return move(delta, this);
+		return move(delta, this);
 	};
 	this.update = function() {
 	};
@@ -76,7 +78,21 @@ function OpponentObject(x, y, width, height, color, direction, speed) {
 		return result;
 	};
 	this.update = function() {
-    this.direction = this.newDirection;
+		this.direction = this.newDirection;
+	};
+};
+
+function ShotObject(x, y, width, height, color, direction, speed) {
+	GameObject.apply(this, arguments);
+	this.collider = function(o) {
+		var result = collider(this, o);
+		if (result !== null) {
+			var index = gameObjects.indexOf(this);
+			if (index > -1) {
+				gameObjects.splice(index, 1);
+			}
+		}
+		return result;
 	};
 };
 
@@ -138,10 +154,13 @@ function move(delta, o1) {
 			moveTo(o1, o2, 40);
 		}
 	}
-	//console.log(o1.x+" "+o1.y);
 };
 
 function update(delta) {
+	if (fire) {
+		var shot = new ShotObject(player.x + (player.width / 2), player.y - 2, 1, 2, "#00FF00", [38], 0.2);
+		gameObjects.push(shot);
+	}
 	for (var i = 0; i < gameObjects.length; i++) {
 		var gameObject = gameObjects[i];
 		gameObject.move(delta);
@@ -162,15 +181,14 @@ function draw() {
 function mainLoop(timestamp) {
     var numUpdateSteps = 0;
     delta += timestamp - lastFrame;
-    console.log(delta);
     lastFrame = timestamp;
     while (delta >= timestep) {
-      update(timestep);
-      delta -= timestep;
-      if (++numUpdateSteps >= 240) {
-        delta = 0;
-        break;
-      }
+    	update(timestep);
+    	delta -= timestep;
+    	if (++numUpdateSteps >= 240) {
+    		delta = 0;
+    		break;
+    	}
     }
     draw();
     interval = requestAnimationFrame(mainLoop);
@@ -186,6 +204,9 @@ function stop() {
 
 window.onkeydown = function(e) {
 	var key = e.keyCode ? e.keyCode : e.which;
+	if (key == 17) {//17 ctrl
+		fire = true;
+	}
 	var index = player.direction.indexOf(key);
 	if (index == -1) {
 		player.direction.push(key);
@@ -194,6 +215,9 @@ window.onkeydown = function(e) {
 
 window.onkeyup = function(e) {
 	var key = e.keyCode ? e.keyCode : e.which;
+	if (key == 17) {//17 ctrl
+		fire = false;
+	}
 	var index = player.direction.indexOf(key);
 	if (index > -1) {
 		player.direction.splice(index, 1);
