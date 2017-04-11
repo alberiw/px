@@ -1,3 +1,10 @@
+const Direction = {
+	TOP: 38,
+	DOWN: 40,
+	LEFT: 37,
+	RIGHT: 39,
+};
+
 var canvas;
 var ctx;
 var interval;
@@ -8,8 +15,8 @@ var delta = 0;
 var timestep = 1000 / maxFps;
 
 var player = new PlayerObject(100, 21, 10, 10, "#00FF00", [], 0.1);
-var opponent1 = new OpponentObject(100, 10, 10, 10, "#FF0000", [40], 0.1);
-var opponent2 = new OpponentObject(10, 100, 10, 10, "#FF0000", [39], 0.1);
+var opponent1 = new OpponentObject(100, 10, 10, 10, "#FF0000", [Direction.DOWN], 0.1);
+var opponent2 = new OpponentObject(10, 100, 10, 10, "#FF0000", [Direction.RIGHT], 0.1);
 
 var gameObjects = [];
 gameObjects.push(player);
@@ -40,6 +47,7 @@ function GameObject(x, y, width, height, color, direction, speed) {
 	this.color = color;
 	this.direction = direction || [];
 	this.speed = speed || 0;
+	this.collision = true;
 	this.collider = function(o) {
 		return collider(this, o);
 	};
@@ -52,29 +60,50 @@ function GameObject(x, y, width, height, color, direction, speed) {
 
 function PlayerObject(x, y, width, height, color, direction, speed) {
 	GameObject.apply(this, arguments);
-	this.lastDirection = 0;
+	this.lastDirection = direction;
+	this.move = function(delta) {
+		if (this.direction.length > 0) {
+			this.lastDirection = this.direction.slice();
+		}
+		return move(delta, this);
+	};
 	this.update = function() {
 		if (fire) {
 			if (fireDelay > 0) {
 				fireDelay--
 				return;
 			}
-			if (directionf(this, 38)) {
-				var shot = new ShotObject(this.x + (this.width / 2), this.y - 2, 1, 2, "#000000", [38], 0.2);
-				gameObjects.push(shot);
+			var x = 0;
+			var y = 0;
+			var d = [];
+			var a = 0;
+			if (this.direction.length > 0) {
+				a = this.direction[0];
+			} else if (this.lastDirection.length > 0) {
+				a = this.lastDirection[0];
 			}
-			if (directionf(this, 40)) {
-				var shot = new ShotObject(this.x + (this.width / 2), this.y + this.height, 1, 2, "#000000", [40], 0.2);
-				gameObjects.push(shot);
+			if (a == Direction.TOP) {
+				x = this.x + (this.width / 2);
+				y = this.y - 1;
+				d = [Direction.TOP];
 			}
-			if (directionf(this, 39)) {
-				var shot = new ShotObject(this.x + this.width, this.y + (this.height / 2), 2, 1, "#000000", [39], 0.2);
-				gameObjects.push(shot);
+			if (a == Direction.DOWN) {
+				x = this.x + (this.width / 2);
+				y = this.y + this.height;
+				d = [Direction.DOWN];
 			}
-			if (directionf(this, 37)) {
-				var shot = new ShotObject(this.x - 2, this.y + (this.height / 2), 2, 1, "#000000", [37], 0.2);
-				gameObjects.push(shot);
+			if (a == Direction.RIGHT) {
+				x = this.x + this.width;
+				y = this.y + (this.height / 2);
+				d = [Direction.RIGHT];
 			}
+			if (a == Direction.LEFT) {
+				x = this.x - 1;
+				y = this.y + (this.height / 2);
+				d = [Direction.LEFT];
+			}
+			var shot = new ShotObject(x, y, 1, 1, "#000000", d, 0.2);
+			gameObjects.push(shot);
 			fireDelay = 10;
 		}
 	};
@@ -86,21 +115,21 @@ function OpponentObject(x, y, width, height, color, direction, speed) {
 	this.collider = function(o) {
 		var result = collider(this, o);
 		if (result !== null) {
-			var index = this.direction.indexOf(39);
+			var index = this.direction.indexOf(Direction.RIGHT);
 			if (index > -1) {
-				this.newDirection = [37];
+				this.newDirection = [Direction.LEFT];
 			} else {
-				index = this.direction.indexOf(37);
+				index = this.direction.indexOf(Direction.LEFT);
 				if (index > -1) {
-					this.newDirection = [39];
+					this.newDirection = [Direction.RIGHT];
 				} else {
-					index = this.direction.indexOf(38);
+					index = this.direction.indexOf(Direction.TOP);
 					if (index > -1) {
-						this.newDirection = [40];
+						this.newDirection = [Direction.DOWN];
 					} else {
-						index = this.direction.indexOf(40);
+						index = this.direction.indexOf(Direction.DOWN);
 						if (index > -1) {
-							this.newDirection = [38];
+							this.newDirection = [Direction.TOP];
 						}
 					}
 				}
@@ -115,6 +144,7 @@ function OpponentObject(x, y, width, height, color, direction, speed) {
 
 function ShotObject(x, y, width, height, color, direction, speed) {
 	GameObject.apply(this, arguments);
+	this.collision = false;
 	this.collider = function(o) {
 		var result = collider(this, o);
 		if (result !== null) {
@@ -130,22 +160,24 @@ function ShotObject(x, y, width, height, color, direction, speed) {
 function chackCollision(o1) {
 	for (var i = 0; i < gameObjects.length; i++) {
 		var gameObject = gameObjects[i];
-		var o2 = o1.collider(gameObject);
-		if (o2 !== null) {
-			return o2;
+		if (gameObject.collision) {
+			var o2 = o1.collider(gameObject);
+			if (o2 !== null) {
+				return o2;
+			}
 		}
 	}
 	return null;
 };
 
 function moveTo(o1, o2, direction) {
-	if (direction === 37) {//37 left
+	if (direction === Direction.LEFT) {//37 left
 		o1.x = o2.x + o2.width;
-	} else if (direction === 38) {//38 top
+	} else if (direction === Direction.TOP) {//38 top
 		o1.y = o2.y + o2.height;
-	} else if (direction === 39) {//39 right
+	} else if (direction === Direction.RIGHT) {//39 right
 		o1.x = o2.x - o1.width;
-	} else if (direction === 40) {//40 down
+	} else if (direction === Direction.DOWN) {//40 down
 		o1.y = o2.y - o1.height;
 	}
 };
@@ -155,34 +187,34 @@ function directionf(o1, value) {
 };
 
 function move(delta, o1) {
-	if (directionf(o1, 37)) {//37 left
+	if (directionf(o1, Direction.LEFT)) {//37 left
 		o1.x -= o1.speed * delta;
 		var o2 = chackCollision(o1);
 		if (o2 !== null) {
 			o1.x += o1.speed * delta;
-			moveTo(o1, o2, 37);
+			moveTo(o1, o2, Direction.LEFT);
 		}
 	}
-	if (directionf(o1, 38)) {//38 top
+	if (directionf(o1, Direction.TOP)) {//38 top
 		o1.y -= o1.speed * delta;
 		var o2 = chackCollision(o1);
 		if (o2 !== null) {
 			o1.y += o1.speed * delta;
-			moveTo(o1, o2, 38);
+			moveTo(o1, o2, Direction.TOP);
 		}
 	}
-	if (directionf(o1, 39)) {//39 right
+	if (directionf(o1, Direction.RIGHT)) {//39 right
 		o1.x += o1.speed * delta;
 		var o2 = chackCollision(o1);
 		if (o2 !== null) {
-			moveTo(o1, o2, 39);
+			moveTo(o1, o2, Direction.RIGHT);
 		}
 	}
-	if (directionf(o1, 40)) {//40 down
+	if (directionf(o1, Direction.DOWN)) {//40 down
 		o1.y += o1.speed * delta;
 		var o2 = chackCollision(o1);
 		if (o2 !== null) {
-			moveTo(o1, o2, 40);
+			moveTo(o1, o2, Direction.DOWN);
 		}
 	}
 };
@@ -234,9 +266,11 @@ window.onkeydown = function(e) {
 	if (key == 17) {//17 ctrl
 		fire = true;
 	}
-	var index = player.direction.indexOf(key);
-	if (index == -1) {
-		player.direction.push(key);
+	if (key >= 37 && key <= 40) {
+		var index = player.direction.indexOf(key);
+		if (index == -1) {
+			player.direction.push(key);
+		}
 	}
 };
 
@@ -245,9 +279,11 @@ window.onkeyup = function(e) {
 	if (key == 17) {//17 ctrl
 		fire = false;
 	}
-	var index = player.direction.indexOf(key);
-	if (index > -1) {
-		player.direction.splice(index, 1);
+	if (key >= 37 && key <= 40) {
+		var index = player.direction.indexOf(key);
+		if (index > -1) {
+			player.direction.splice(index, 1);
+		}
 	}
 };
 
