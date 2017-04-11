@@ -17,6 +17,7 @@ var timestep = 1000 / maxFps;
 var player = new PlayerObject(100, 21, 10, 10, "#00FF00", [], 0.1);
 var opponent1 = new OpponentObject(100, 10, 10, 10, "#FF0000", [Direction.DOWN], 0.1);
 var opponent2 = new OpponentObject(10, 100, 10, 10, "#FF0000", [Direction.RIGHT], 0.1);
+var s = new Sprite("img/character.png", 10, 10, 96, 128);
 
 var gameObjects = [];
 gameObjects.push(player);
@@ -37,6 +38,34 @@ function collider(o1, o2) {
 	} else {
 		return null;
 	}
+};
+
+function Sprite(src, x, y, width, height) {
+	this.src = src;
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+	this.frameIndexX = 1,
+	this.numberOfFramesX = 3;
+	this.frameIndexY = 0,
+	this.numberOfFramesY = 4;
+	this.update = function () {
+	};
+	this.render = function (context) {
+		var img = new Image();
+		img.src = src;
+		context.drawImage(
+				img,
+				this.frameIndexX * this.width / this.numberOfFramesX,
+				this.frameIndexY * this.height / this.numberOfFramesY,
+				this.width / this.numberOfFramesX,
+				this.height / this.numberOfFramesY,
+				this.x,
+				this.y,
+				this.width / this.numberOfFramesX,
+				this.height / this.numberOfFramesY);
+	};
 };
 
 function GameObject(x, y, width, height, color, direction, speed) {
@@ -235,6 +264,8 @@ function draw() {
 		ctx.fillStyle = gameObject.color;
 		ctx.fillRect(gameObject.x, gameObject.y, gameObject.width, gameObject.height);
 	}
+	
+	s.render(ctx);
 };
 
 function mainLoop(timestamp) {
