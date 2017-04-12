@@ -14,10 +14,9 @@ var lastFrame = 0;
 var delta = 0;
 var timestep = 1000 / maxFps;
 
-var player = new PlayerObject(100, 21, 10, 10, "#00FF00", [], 0.1);
-var opponent1 = new OpponentObject(100, 10, 10, 10, "#FF0000", [Direction.DOWN], 0.1);
-var opponent2 = new OpponentObject(10, 100, 10, 10, "#FF0000", [Direction.RIGHT], 0.1);
-var s = new Sprite("img/character.png", 10, 10, 96, 128);
+var player = new PlayerObject("img/character.png", 10, 10, 96, 128, [], 0.1);
+var opponent1 = new OpponentObject("img/character.png", 100, 10, 96, 128, [Direction.DOWN], 0.1);
+var opponent2 = new OpponentObject("img/character.png", 10, 100, 96, 128, [Direction.RIGHT], 0.1);
 
 var gameObjects = [];
 gameObjects.push(player);
@@ -30,51 +29,56 @@ var fireDelay = 0;
 function collider(o1, o2) {
 	if (o1 === o2) {
 		return null;
-	} else if (o1.x + o1.width > o2.x &&
-		o1.x < o2.x + o2.width &&
-		o1.y + o1.height > o2.y &&
-		o1.y < o2.y + o2.height) {
+	} else if (o1.x + o1.getWidth() > o2.x &&
+		o1.x < o2.x + o2.getWidth() &&
+		o1.y + o1.getHeight() > o2.y &&
+		o1.y < o2.y + o2.getHeight()) {
 		return o2;
 	} else {
 		return null;
 	}
 };
 
-function Sprite(src, x, y, width, height) {
+function Sprite(src, x, y, width, height, direction) {
 	this.src = src;
 	this.x = x;
 	this.y = y;
 	this.width = width;
 	this.height = height;
-	this.frameIndexX = 1,
-	this.numberOfFramesX = 3;
-	this.frameIndexY = 0,
-	this.numberOfFramesY = 4;
-	this.update = function () {
+	this.direction = direction || [];
+	this.frameIndexX = 0;
+	this.numberOfFramesX = 1;
+	this.frameIndexY = 0;
+	this.numberOfFramesY = 1;
+	this.getWidth = function () {
+		return this.width / this.numberOfFramesX;
 	};
+	this.getHeight = function () {
+		return this.height / this.numberOfFramesY;
+	};
+	this.spriteUpdate = function () {};
 	this.render = function (context) {
 		var img = new Image();
 		img.src = src;
+		img.onload = function () {
+			img.width = this.width
+			img.height = this.height
+		};
 		context.drawImage(
 				img,
 				this.frameIndexX * this.width / this.numberOfFramesX,
 				this.frameIndexY * this.height / this.numberOfFramesY,
-				this.width / this.numberOfFramesX,
-				this.height / this.numberOfFramesY,
+				this.getWidth(),
+				this.getHeight(),
 				this.x,
 				this.y,
-				this.width / this.numberOfFramesX,
-				this.height / this.numberOfFramesY);
+				this.getWidth(),
+				this.getHeight());
 	};
 };
 
-function GameObject(x, y, width, height, color, direction, speed) {
-	this.x = x;
-	this.y = y;
-	this.width = width;
-	this.height = height;
-	this.color = color;
-	this.direction = direction || [];
+function GameObject(src, x, y, width, height, direction, speed) {
+	Sprite.apply(this, arguments);
 	this.speed = speed || 0;
 	this.collision = true;
 	this.collider = function(o) {
@@ -87,8 +91,26 @@ function GameObject(x, y, width, height, color, direction, speed) {
 	};
 };
 
-function PlayerObject(x, y, width, height, color, direction, speed) {
+function PlayerObject(src, x, y, width, height, direction, speed) {
 	GameObject.apply(this, arguments);
+	this.frameIndexX = 1,
+	this.numberOfFramesX = 3;
+	this.frameIndexY = 0,
+	this.numberOfFramesY = 4;
+	this.spriteUpdate = function () {
+		if (directionf(this, Direction.LEFT)) {
+			this.frameIndexY = 1;
+		} else if (directionf(this, Direction.TOP)) {
+			this.frameIndexY = 3;
+		} else if (directionf(this, Direction.RIGHT)) {
+			this.frameIndexY = 2;
+		} else if (directionf(this, Direction.DOWN)) {
+			this.frameIndexY = 0;
+		} else {
+			this.frameIndexY = 0;
+		}
+	};
+	
 	this.lastDirection = direction;
 	this.move = function(delta) {
 		if (this.direction.length > 0) {
@@ -110,36 +132,56 @@ function PlayerObject(x, y, width, height, color, direction, speed) {
 				a = this.direction[0];
 			} else if (this.lastDirection.length > 0) {
 				a = this.lastDirection[0];
+			} else {
+				a = Direction.DOWN;
 			}
 			if (a == Direction.TOP) {
-				x = this.x + (this.width / 2);
+				x = this.x + (this.getWidth() / 2);
 				y = this.y - 1;
 				d = [Direction.TOP];
 			}
 			if (a == Direction.DOWN) {
-				x = this.x + (this.width / 2);
-				y = this.y + this.height;
+				x = this.x + (this.getWidth() / 2);
+				y = this.y + this.getHeight();
 				d = [Direction.DOWN];
 			}
 			if (a == Direction.RIGHT) {
-				x = this.x + this.width;
-				y = this.y + (this.height / 2);
+				x = this.x + this.getWidth();
+				y = this.y + (this.getHeight() / 2);
 				d = [Direction.RIGHT];
 			}
 			if (a == Direction.LEFT) {
 				x = this.x - 1;
-				y = this.y + (this.height / 2);
+				y = this.y + (this.getHeight() / 2);
 				d = [Direction.LEFT];
 			}
-			var shot = new ShotObject(x, y, 1, 1, "#000000", d, 0.2);
+			var shot = new ShotObject("img/shot.png", x, y, 3, 3, d, 0.2);
 			gameObjects.push(shot);
 			fireDelay = 10;
 		}
 	};
 }
 
-function OpponentObject(x, y, width, height, color, direction, speed) {
+function OpponentObject(src, x, y, width, height, direction, speed) {
 	GameObject.apply(this, arguments);
+	this.frameIndexX = 1,
+	this.numberOfFramesX = 3;
+	this.frameIndexY = 0,
+	this.numberOfFramesY = 4;
+	this.spriteUpdate = function () {
+		if (directionf(this, Direction.LEFT)) {
+			this.frameIndexY = 1;
+		} else if (directionf(this, Direction.TOP)) {
+			this.frameIndexY = 3;
+		} else if (directionf(this, Direction.RIGHT)) {
+			this.frameIndexY = 2;
+		} else if (directionf(this, Direction.DOWN)) {
+			this.frameIndexY = 0;
+		} else {
+			this.frameIndexY = 0;
+		}
+	};
+	
 	this.newDirection = this.direction;
 	this.collider = function(o) {
 		var result = collider(this, o);
@@ -171,7 +213,7 @@ function OpponentObject(x, y, width, height, color, direction, speed) {
 	};
 };
 
-function ShotObject(x, y, width, height, color, direction, speed) {
+function ShotObject(src, x, y, width, height, direction, speed) {
 	GameObject.apply(this, arguments);
 	this.collision = false;
 	this.collider = function(o) {
@@ -201,13 +243,13 @@ function chackCollision(o1) {
 
 function moveTo(o1, o2, direction) {
 	if (direction === Direction.LEFT) {//37 left
-		o1.x = o2.x + o2.width;
+		o1.x = o2.x + o2.getWidth();
 	} else if (direction === Direction.TOP) {//38 top
-		o1.y = o2.y + o2.height;
+		o1.y = o2.y + o2.getHeight();
 	} else if (direction === Direction.RIGHT) {//39 right
-		o1.x = o2.x - o1.width;
+		o1.x = o2.x - o1.getWidth();
 	} else if (direction === Direction.DOWN) {//40 down
-		o1.y = o2.y - o1.height;
+		o1.y = o2.y - o1.getHeight();
 	}
 };
 
@@ -261,11 +303,9 @@ function draw() {
 	
 	for (var i = 0; i < gameObjects.length; i++) {
 		var gameObject = gameObjects[i];
-		ctx.fillStyle = gameObject.color;
-		ctx.fillRect(gameObject.x, gameObject.y, gameObject.width, gameObject.height);
+		gameObject.spriteUpdate();
+		gameObject.render(ctx);
 	}
-	
-	s.render(ctx);
 };
 
 function mainLoop(timestamp) {
@@ -320,15 +360,17 @@ window.onkeyup = function(e) {
 
 window.onload = function() {
 	canvas = document.getElementById("canvas");
+	canvas.height = 500;
+	canvas.width = 500;
 	ctx = canvas.getContext("2d");
 	
-	var wall1 = new GameObject(0, 0, 10, canvas.height, "#000000");
+	var wall1 = new GameObject("", 0, 0, 10, canvas.height);
 	gameObjects.push(wall1);
-	var wall2 = new GameObject(canvas.width - 10, 0, 10, canvas.height, "#000000");
+	var wall2 = new GameObject("", canvas.width - 10, 0, 10, canvas.height);
 	gameObjects.push(wall2);
-	var wall3 = new GameObject(0, 0, canvas.width, 10, "#000000");
+	var wall3 = new GameObject("", 0, 0, canvas.width, 10);
 	gameObjects.push(wall3);
-	var wall4 = new GameObject(0, canvas.height - 10, canvas.width, 10, "#000000");
+	var wall4 = new GameObject("", 0, canvas.height - 10, canvas.width, 10);
 	gameObjects.push(wall4);
 	
 	run();
