@@ -26,6 +26,8 @@ gameObjects.push(opponent2);
 var fire = false;
 var fireDelay = 0;
 
+var delay = 30;
+
 function collider(o1, o2) {
 	if (o1 === o2) {
 		return null;
@@ -50,6 +52,11 @@ function Sprite(src, x, y, width, height, direction) {
 	this.numberOfFramesX = 1;
 	this.frameIndexY = 0;
 	this.numberOfFramesY = 1;
+	
+	this.delay = 30;
+	this.animation = [0];
+	this.animationFrame = 0;
+	
 	this.getWidth = function () {
 		return this.width / this.numberOfFramesX;
 	};
@@ -66,7 +73,7 @@ function Sprite(src, x, y, width, height, direction) {
 		};
 		context.drawImage(
 				img,
-				this.frameIndexX * this.width / this.numberOfFramesX,
+				this.animation[this.animationFrame] * this.width / this.numberOfFramesX,
 				this.frameIndexY * this.height / this.numberOfFramesY,
 				this.getWidth(),
 				this.getHeight(),
@@ -91,23 +98,43 @@ function GameObject(src, x, y, width, height, direction, speed) {
 	};
 };
 
+function animation(o1, direction) {
+	if (o1.frameIndexY == direction) {
+		if (--o1.delay == 0) {
+			o1.delay = delay;
+			if (o1.animationFrame < o1.animation.length - 1) {
+			//if (o1.frameIndexX < o1.numberOfFramesX - 1) {
+				//++o1.frameIndexX;
+				++o1.animationFrame
+			} else {
+				//o1.frameIndexX = 0;
+				o1.animationFrame = 0;
+			}
+		}
+		o1.frameIndexY = direction;
+	} else {
+		o1.delay = delay;
+		o1.frameIndexX = 0;
+		o1.frameIndexY = direction;
+	}
+}
+
 function PlayerObject(src, x, y, width, height, direction, speed) {
 	GameObject.apply(this, arguments);
-	this.frameIndexX = 1,
+	this.frameIndexX = 0,
 	this.numberOfFramesX = 3;
 	this.frameIndexY = 0,
 	this.numberOfFramesY = 4;
+	this.animation = [1,0,1,2];
 	this.spriteUpdate = function () {
 		if (directionf(this, Direction.LEFT)) {
-			this.frameIndexY = 1;
+			animation(this, 1);
 		} else if (directionf(this, Direction.TOP)) {
-			this.frameIndexY = 3;
+			animation(this, 3);
 		} else if (directionf(this, Direction.RIGHT)) {
-			this.frameIndexY = 2;
+			animation(this, 2);
 		} else if (directionf(this, Direction.DOWN)) {
-			this.frameIndexY = 0;
-		} else {
-			this.frameIndexY = 0;
+			animation(this, 0);
 		}
 	};
 	
@@ -168,17 +195,16 @@ function OpponentObject(src, x, y, width, height, direction, speed) {
 	this.numberOfFramesX = 3;
 	this.frameIndexY = 0,
 	this.numberOfFramesY = 4;
+	this.animation = [1,0,1,2];
 	this.spriteUpdate = function () {
 		if (directionf(this, Direction.LEFT)) {
-			this.frameIndexY = 1;
+			animation(this, 1);
 		} else if (directionf(this, Direction.TOP)) {
-			this.frameIndexY = 3;
+			animation(this, 3);
 		} else if (directionf(this, Direction.RIGHT)) {
-			this.frameIndexY = 2;
+			animation(this, 2);
 		} else if (directionf(this, Direction.DOWN)) {
-			this.frameIndexY = 0;
-		} else {
-			this.frameIndexY = 0;
+			animation(this, 0);
 		}
 	};
 	
