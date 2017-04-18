@@ -23,9 +23,6 @@ gameObjects.push(player);
 gameObjects.push(opponent1);
 gameObjects.push(opponent2);
 
-var fire = false;
-var fireDelay = 0;
-
 var delay = 30;
 
 function collider(o1, o2) {
@@ -126,6 +123,10 @@ function PlayerObject(src, x, y, width, height, direction, speed) {
 	this.frameIndexY = 0,
 	this.numberOfFramesY = 4;
 	this.animation = [1,0,1,2];
+	
+	this.fire = false;
+	this.fireDelay = 0;
+	
 	this.spriteUpdate = function () {
 		if (directionf(this, Direction.LEFT)) {
 			animation(this, 1);
@@ -146,9 +147,9 @@ function PlayerObject(src, x, y, width, height, direction, speed) {
 		return move(delta, this);
 	};
 	this.update = function() {
-		if (fire) {
-			if (fireDelay > 0) {
-				fireDelay--
+		if (this.fire) {
+			if (this.fireDelay > 0) {
+				this.fireDelay--
 				return;
 			}
 			var x = 0;
@@ -184,7 +185,7 @@ function PlayerObject(src, x, y, width, height, direction, speed) {
 			}
 			var shot = new ShotObject("img/shot.png", x, y, 3, 3, d, 0.2);
 			gameObjects.push(shot);
-			fireDelay = 10;
+			this.fireDelay = 10;
 		}
 	};
 }
@@ -196,6 +197,10 @@ function OpponentObject(src, x, y, width, height, direction, speed) {
 	this.frameIndexY = 0,
 	this.numberOfFramesY = 4;
 	this.animation = [1,0,1,2];
+	
+	this.fire = true;
+	this.fireDelay = 0;
+	
 	this.spriteUpdate = function () {
 		if (directionf(this, Direction.LEFT)) {
 			animation(this, 1);
@@ -236,8 +241,57 @@ function OpponentObject(src, x, y, width, height, direction, speed) {
 	};
 	this.update = function() {
 		this.direction = this.newDirection;
+		
+		if (this.fire) {
+			if (this.fireDelay > 0) {
+				this.fireDelay--
+				return;
+			}
+			var x = 0;
+			var y = 0;
+			var d = [];
+			var a = 0;
+			if (this.direction.length > 0) {
+				a = this.direction[0];
+			} else if (this.lastDirection.length > 0) {
+				a = this.lastDirection[0];
+			} else {
+				a = Direction.DOWN;
+			}
+			if (a == Direction.TOP) {
+				x = this.x + (this.getWidth() / 2);
+				y = this.y - 1;
+				d = [Direction.TOP];
+			}
+			if (a == Direction.DOWN) {
+				x = this.x + (this.getWidth() / 2);
+				y = this.y + this.getHeight();
+				d = [Direction.DOWN];
+			}
+			if (a == Direction.RIGHT) {
+				x = this.x + this.getWidth();
+				y = this.y + (this.getHeight() / 2);
+				d = [Direction.RIGHT];
+			}
+			if (a == Direction.LEFT) {
+				x = this.x - 1;
+				y = this.y + (this.getHeight() / 2);
+				d = [Direction.LEFT];
+			}
+			var shot = new ShotObject("img/shot.png", x, y, 3, 3, d, 0.2);
+			gameObjects.push(shot);
+			this.fireDelay = 10;
+		}
 	};
 };
+
+function WallObject(src, x, y, width, height) {
+	GameObject.apply(this, arguments);
+	this.render = function (context) {
+		context.fillStyle = "#000000";
+		context.fillRect(x, y, width, height);
+	};
+}
 
 function ShotObject(src, x, y, width, height, direction, speed) {
 	GameObject.apply(this, arguments);
@@ -291,23 +345,20 @@ function move(delta, o1) {
 			o1.x += o1.speed * delta;
 			moveTo(o1, o2, Direction.LEFT);
 		}
-	}
-	if (directionf(o1, Direction.TOP)) {//38 top
+	} else if (directionf(o1, Direction.TOP)) {//38 top
 		o1.y -= o1.speed * delta;
 		var o2 = chackCollision(o1);
 		if (o2 !== null) {
 			o1.y += o1.speed * delta;
 			moveTo(o1, o2, Direction.TOP);
 		}
-	}
-	if (directionf(o1, Direction.RIGHT)) {//39 right
+	} else if (directionf(o1, Direction.RIGHT)) {//39 right
 		o1.x += o1.speed * delta;
 		var o2 = chackCollision(o1);
 		if (o2 !== null) {
 			moveTo(o1, o2, Direction.RIGHT);
 		}
-	}
-	if (directionf(o1, Direction.DOWN)) {//40 down
+	} else if (directionf(o1, Direction.DOWN)) {//40 down
 		o1.y += o1.speed * delta;
 		var o2 = chackCollision(o1);
 		if (o2 !== null) {
@@ -358,10 +409,31 @@ function stop() {
 	cancelAnimationFrame(interval);
 };
 
+function init() {
+	canvas = document.getElementById("canvas");
+	canvas.height = 500;
+	canvas.width = 500;
+	ctx = canvas.getContext("2d");
+	
+	var wall1 = new WallObject("", 0, 0, 10, canvas.height);
+	gameObjects.push(wall1);
+	var wall2 = new WallObject("", canvas.width - 10, 0, 10, canvas.height);
+	gameObjects.push(wall2);
+	var wall3 = new WallObject("", 0, 0, canvas.width, 10);
+	gameObjects.push(wall3);
+	var wall4 = new WallObject("", 0, canvas.height - 10, canvas.width, 10);
+	gameObjects.push(wall4);
+	
+	var tree = new GameObject("img/tree.png", 100, 100, 36, 72);
+	gameObjects.push(tree);
+	
+	run();
+}
+
 window.onkeydown = function(e) {
 	var key = e.keyCode ? e.keyCode : e.which;
 	if (key == 17) {//17 ctrl
-		fire = true;
+		player.fire = true;
 	}
 	if (key >= 37 && key <= 40) {
 		var index = player.direction.indexOf(key);
@@ -374,7 +446,7 @@ window.onkeydown = function(e) {
 window.onkeyup = function(e) {
 	var key = e.keyCode ? e.keyCode : e.which;
 	if (key == 17) {//17 ctrl
-		fire = false;
+		player.fire = false;
 	}
 	if (key >= 37 && key <= 40) {
 		var index = player.direction.indexOf(key);
@@ -385,19 +457,5 @@ window.onkeyup = function(e) {
 };
 
 window.onload = function() {
-	canvas = document.getElementById("canvas");
-	canvas.height = 500;
-	canvas.width = 500;
-	ctx = canvas.getContext("2d");
-	
-	var wall1 = new GameObject("", 0, 0, 10, canvas.height);
-	gameObjects.push(wall1);
-	var wall2 = new GameObject("", canvas.width - 10, 0, 10, canvas.height);
-	gameObjects.push(wall2);
-	var wall3 = new GameObject("", 0, 0, canvas.width, 10);
-	gameObjects.push(wall3);
-	var wall4 = new GameObject("", 0, canvas.height - 10, canvas.width, 10);
-	gameObjects.push(wall4);
-	
-	run();
+	init();
 };
