@@ -1,3 +1,15 @@
+var boardWidth = 800;
+var boardHeight = 800;
+var cameraX = 0;
+var cameraY = 0;
+var cameraWidth = 500;
+var cameraHeight = 500;
+
+function cameraMove(x, y) {
+	cameraX += x;
+	cameraY += y;
+}
+//
 const Direction = {
 	TOP: 38,
 	DOWN: 40,
@@ -14,7 +26,7 @@ var lastFrame = 0;
 var delta = 0;
 var timestep = 1000 / maxFps;
 
-var player = new PlayerObject("img/character.png", 10, 10, 96, 128, [], 0.1);
+var player = new PlayerObject("img/character.png", 250, 250, 96, 128, [], 0.1);
 var opponent1 = new OpponentObject("img/character.png", 100, 10, 96, 128, [Direction.DOWN], 0.1);
 var opponent2 = new OpponentObject("img/character.png", 10, 100, 96, 128, [Direction.RIGHT], 0.1);
 
@@ -74,8 +86,8 @@ function Sprite(src, x, y, width, height, direction) {
 				this.frameIndexY * this.height / this.numberOfFramesY,
 				this.getWidth(),
 				this.getHeight(),
-				this.x,
-				this.y,
+				this.x + cameraX,
+				this.y + cameraY,
 				this.getWidth(),
 				this.getHeight());
 	};
@@ -144,7 +156,11 @@ function PlayerObject(src, x, y, width, height, direction, speed) {
 		if (this.direction.length > 0) {
 			this.lastDirection = this.direction.slice();
 		}
-		return move(delta, this);
+		var tempX = this.x;
+		var tempY = this.y;
+		var tempMove = move(delta, this);
+		cameraMove(tempX - this.x, tempY - this.y);
+		return tempMove;
 	};
 	this.update = function() {
 		if (this.fire) {
@@ -289,7 +305,7 @@ function WallObject(src, x, y, width, height) {
 	GameObject.apply(this, arguments);
 	this.render = function (context) {
 		context.fillStyle = "#000000";
-		context.fillRect(x, y, width, height);
+		context.fillRect(x + cameraX, y + cameraY, width, height);
 	};
 }
 
@@ -411,17 +427,17 @@ function stop() {
 
 function init() {
 	canvas = document.getElementById("canvas");
-	canvas.height = 500;
-	canvas.width = 500;
+	canvas.height = cameraHeight;//500;
+	canvas.width = cameraWidth;//500;
 	ctx = canvas.getContext("2d");
 	
-	var wall1 = new WallObject("", 0, 0, 10, canvas.height);
+	var wall1 = new WallObject("", 0, 0, 10, boardHeight);
 	gameObjects.push(wall1);
-	var wall2 = new WallObject("", canvas.width - 10, 0, 10, canvas.height);
+	var wall2 = new WallObject("", boardWidth - 10, 0, 10, boardHeight);
 	gameObjects.push(wall2);
-	var wall3 = new WallObject("", 0, 0, canvas.width, 10);
+	var wall3 = new WallObject("", 0, 0, boardWidth, 10);
 	gameObjects.push(wall3);
-	var wall4 = new WallObject("", 0, canvas.height - 10, canvas.width, 10);
+	var wall4 = new WallObject("", 0, boardHeight - 10, boardWidth, 10);
 	gameObjects.push(wall4);
 	
 	var tree = new GameObject("img/tree.png", 100, 100, 36, 72);
