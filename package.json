@@ -1,0 +1,28 @@
+{
+  "name": "px",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "browser-sync -s -f 'index.html dist/**/*, src/**/*'",
+    "build": "webpack --config webpack.config.js --mode 'production'",
+    "build:watch": "webpack -w --config webpack.config.js --mode 'production'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alberiw/px.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alberiw/px/issues"
+  },
+  "homepage": "https://github.com/alberiw/px#readme",
+  "devDependencies": {
+    "browser-sync": "^2.26.7",
+    "copy-webpack-plugin": "^6.0.3",
+    "ts-loader": "^7.0.5",
+    "typescript": "^3.9.5",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.12"
+  }
+}
