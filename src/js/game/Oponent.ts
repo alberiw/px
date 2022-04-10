@@ -50,6 +50,7 @@ export class Oponent extends GameObject {
     // }
     
     update(delta: number) {
+        super.update(delta);
         this._direction = this._nextDirection;
         switch (this._direction) {
             case Direction.LEFT: {

@@ -26,11 +26,7 @@ export class Asset implements Loadable {
     }
 
     private _createImage(dim?: Dimension): HTMLImageElement {
-        if (dim) {
-            return new Image(dim.width, dim.height);
-        } else {
-            return new Image();
-        }
+        return new Image(dim?.width, dim?.height);
     }
 
     load(): Promise<HTMLImageElement> {

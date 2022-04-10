@@ -8,7 +8,7 @@ import { Dimension } from "./Dimension";
 export class GameObject {
 
     private _isVisable: boolean = true;
-    private _collider: Collider
+    private _collider: Collider;
 
     constructor(
         protected _sprite: Sprite, 
@@ -18,10 +18,10 @@ export class GameObject {
         this._collider = new Collider(
             this._pos,
             new Dimension(
-                this._sprite.width, 
-                this._sprite.height
+                this.width, 
+                this.height
             )
-        )
+        );
     }
 
     get visable(): boolean {

@@ -2,10 +2,10 @@ import { Direction } from "./Direction";
 import { Player } from "./Player";
 
 export enum Key {
-    Up = 38,
-    Down = 40,
-    Left = 37,
-    Right = 39,
+    UP = 38,
+    DOWN = 40,
+    LEFT = 37,
+    RIGHT = 39,
 }
 
 export class Control {
@@ -20,19 +20,19 @@ export class Control {
         window.onkeydown = (e: KeyboardEvent) => {
             const key = e.keyCode ? e.keyCode : e.which;
             switch (key) {
-                case Key.Left: {
+                case Key.LEFT: {
                     player.direction = Direction.LEFT;
                     break;
                 }
-                case Key.Up: {
+                case Key.UP: {
                     player.direction = Direction.TOP;
                     break;
                 }
-                case Key.Right: {
+                case Key.RIGHT: {
                     player.direction = Direction.RIGHT;
                     break;
                 }
-                case Key.Down: {
+                case Key.DOWN: {
                     player.direction = Direction.DOWN;
                     break;
                 }
@@ -42,25 +42,25 @@ export class Control {
         window.onkeyup = (e: KeyboardEvent) => {
             const key = e.keyCode ? e.keyCode : e.which
             switch (key) {
-                case Key.Left: {
+                case Key.LEFT: {
                     if (player.direction === Direction.LEFT) {
                         player.direction = null;
                     }
                     break;
                 }
-                case Key.Up: {
+                case Key.UP: {
                     if (player.direction === Direction.TOP) {
                         player.direction = null;
                     }
                     break;
                 }
-                case Key.Right: {
+                case Key.RIGHT: {
                     if (player.direction === Direction.RIGHT) {
                         player.direction = null;
                     }
                     break;
                 }
-                case Key.Down: {
+                case Key.DOWN: {
                     if (player.direction === Direction.DOWN) {
                         player.direction = null;
                     }

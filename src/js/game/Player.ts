@@ -4,10 +4,12 @@ import { Sprite } from "../engine/Sprite";
 import { Direction } from "./Direction";
 import { Camera } from "../engine/Camera";
 import { Engine } from "../engine/Engine";
+import { CollisionManager } from "../engine/CollisionManager";
 
 export class Player extends GameObject {
 
     private _direction: Direction;
+    private _collisionManager: CollisionManager;
 
     constructor(
         engine: Engine,
@@ -34,51 +36,38 @@ export class Player extends GameObject {
         this._direction = direction;
     }
 
+    set collisionManger(collisionManager: CollisionManager) {
+        this._collisionManager = collisionManager;
+    }
+
     update(delta: number) {
+        super.update(delta);
         switch (this.direction) {
             case Direction.LEFT: {
-                this._pos.x -= this._speed * delta;
-                // this._sprite.animation(1);
-                // const object = this._engine.chackCollision(this);
-                // if (object !== null) {
-                //     this._pos.x = object._pos.x + object.width;
-                // }
+                const pos = new Vector(this._pos.x - this._speed * delta, this.pos.y)
+                this._pos = this._collisionManager.chackCollision(this, pos);
+                console.log(this._pos);
                 break;
             }
             case Direction.TOP: {
-                this._pos.y -= this._speed * delta;
-                // this._sprite.animation(3);
-                // const object = this._engine.chackCollision(this);
-                // if (object !== null) {
-                //     this._pos.y = object._pos.y + object.height;
-                // }
+                const pos = new Vector(this._pos.x, this.pos.y - this._speed * delta)
+                this._pos = this._collisionManager.chackCollision(this, pos);
+                console.log(this._pos);
                 break;
             }
             case Direction.RIGHT: {
-                this._pos.x += this._speed * delta;
-                // this._sprite.animation(2);
-                // const object = this._engine.chackCollision(this);
-                // if (object !== null) {
-                //     this._pos.x = object._pos.x - this.width;
-                // }
+                const pos = new Vector(this._pos.x + this._speed * delta, this.pos.y)
+                this._pos = this._collisionManager.chackCollision(this, pos);
+                console.log(this._pos);
                 break;
             }
             case Direction.DOWN: {
-                this._pos.y += this._speed * delta;
-                // this._sprite.animation(0);
-                // const object = this._engine.chackCollision(this);
-                // if (object !== null) {
-                //     this._pos.y = object._pos.y - this.height;
-                // }
+                const pos = new Vector(this._pos.x, this.pos.y + this._speed * delta)
+                this._pos = this._collisionManager.chackCollision(this, pos);
+                console.log(this._pos);
                 break;
             }
         }
     }
-	
-	// move(delta: number) {
-    //     const tempPos = this._pos;
-    //     super.move(delta);
-    //     // this._camera.move(tempPos.minus(this._pos));
-    // }
     
 }

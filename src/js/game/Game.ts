@@ -3,11 +3,13 @@ import { Camera } from "../engine/Camera";
 import { Vector } from "../engine/Vector";
 import { Dimension } from "../engine/Dimension";
 import { Sprite } from "../engine/Sprite";
-import { Control } from "./Control";
-import { Player } from "./Player";
 import { Asset } from "../engine/Asset";
 import { Engine } from "../engine/Engine";
 import { Loader } from "../engine/Loader";
+
+import { Control } from "./Control";
+import { Player } from "./Player";
+import { CollisionManager } from "../engine/CollisionManager";
 
 
 export class Game {
@@ -51,7 +53,8 @@ export class Game {
 
         const treeAsset = new Asset(
             "tree.png",
-            new Dimension(36, 72),
+            new Dimension(32, 64),
+            // new Dimension(36, 72),
         );
         this._loader.add(treeAsset);
 
@@ -61,6 +64,9 @@ export class Game {
             [],
         )
         this._engine.add(tree);
+
+        const collisionManager = new CollisionManager(this._engine.gameObjects);
+        player.collisionManger = collisionManager;
     }
 
     run() {

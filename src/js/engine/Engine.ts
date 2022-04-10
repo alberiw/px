@@ -24,6 +24,10 @@ export class Engine {
         this._gameObjects = [];
     }
 
+    get gameObjects(): GameObject[] {
+        return this._gameObjects;
+    }
+
     add(camera: Camera)
     add(gameObject: GameObject)
     add(input: Camera | GameObject) {
@@ -42,28 +46,9 @@ export class Engine {
         cancelAnimationFrame(this._interval);
     }
 
-    //TODO replace by AABB tree
-    //https://www.azurefromthetrenches.com/introductory-guide-to-aabb-tree-collision-detection/
-    chackCollision(o1: GameObject): GameObject | null {
-        if (!o1.collider) {
-            return null;
-        }
-        const result = this._gameObjects
-            .filter(gameObject => o1.collider.collide(gameObject.collider));
-    
-        if (result.length > 0) {
-            console.log("collision", o1, result)
-            return result[0];
-        } else {
-            return null;
-        }
-    }
-
     private _update(delta: number) {
         this._gameObjects.forEach(gameObject => {
-            // gameObject.move(delta);
             gameObject.update(delta);
-            this.chackCollision(gameObject);
         });
     }
 
