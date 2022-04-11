@@ -8,21 +8,12 @@ import { Dimension } from "./Dimension";
 export class GameObject {
 
     private _isVisable: boolean = true;
-    private _collider: Collider;
 
     constructor(
         protected _sprite: Sprite, 
         protected _pos: Vector, 
         protected _animations: Animation[] = [],
-    ) {
-        this._collider = new Collider(
-            this._pos,
-            new Dimension(
-                this.width, 
-                this.height
-            )
-        );
-    }
+    ) {}
 
     get visable(): boolean {
         return this._isVisable;
@@ -49,7 +40,13 @@ export class GameObject {
     }
 
     get collider(): Collider {
-        return this._collider;
+        return new Collider(
+            this._pos,
+            new Dimension(
+                this.width, 
+                this.height
+            )
+        );
     }
 
 	update(delta: number) {

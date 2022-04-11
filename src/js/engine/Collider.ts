@@ -17,6 +17,7 @@ export class Collider {
     }
     
     collide(other: Collider): boolean {
+        console.log(`${this._pos.x}, ${this._pos.y} = ${other._pos.x}, ${other._pos.y}`)
         if (!other || this === other) {
             return false;
         }
