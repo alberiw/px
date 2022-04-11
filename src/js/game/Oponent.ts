@@ -2,21 +2,21 @@ import { GameObject } from "../engine/GameObject";
 import { Vector } from "../engine/Vector";
 import { Sprite } from "../engine/Sprite";
 import { Direction } from "./Direction";
-import { Engine } from "../engine/Engine";
+import { Dimension } from "../engine/Dimension";
 
 export class Oponent extends GameObject {
 
     private _nextDirection: Direction;
 
     constructor(
-        engine: Engine,
         sprite: Sprite, 
         pos: Vector, 
-        private _direction: Direction | null,
-        speed: number,
-        collision: boolean,
+        dim: Dimension, 
+        collision: boolean, 
+        private _direction: Direction, 
+        private _speed: number, 
     ) {
-        super(sprite, pos, []);
+        super(sprite, pos, dim);
         // this.frameIndexX = 1,
         // this.numberOfFramesX = 3;
         // this.frameIndexY = 0,

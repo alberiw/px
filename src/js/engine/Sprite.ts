@@ -1,8 +1,9 @@
 import { Vector } from "./Vector";
 import { Asset } from "./Asset";
 import { Dimension } from "./Dimension";
+import { SpriteRenderer } from "./SpriteRenderer";
 
-export class Sprite {
+export class Sprite implements SpriteRenderer {
 
     constructor(
         private _asset: Asset,
@@ -39,16 +40,13 @@ export class Sprite {
 
 export class SpriteBuilder {
 
-    private readonly _sprites: Sprite[];
     private _columns: number = 1;
     private _rows: number = 1;
     private _dim: Dimension = this._asset.dim;
 
     constructor(
         private _asset: Asset
-    ) {
-        this._sprites = [];
-    }
+    ) {}
 
     columns(columns: number): SpriteBuilder {
         this._columns = columns;
@@ -66,8 +64,13 @@ export class SpriteBuilder {
     }
 
     build(): Sprite[] {
-        //TODO
-        return this._sprites;
+        const sprites: Sprite[] = [];
+        for (let x = 0; x < this._columns; x++) {
+            for (let y = 0; y < this._rows; y++) {
+                sprites.push(new Sprite(this._asset, x, y, this._dim));
+            }
+        }
+        return sprites;
     }
 
 }

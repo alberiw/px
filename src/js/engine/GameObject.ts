@@ -1,18 +1,18 @@
-import { Sprite } from "./Sprite";
 import { Vector } from "./Vector";
 import { Camera } from "./Camera";
-import { Animation } from "./Animation";
 import { Collider } from "./Collider";
 import { Dimension } from "./Dimension";
+import { SpriteRenderer } from "./SpriteRenderer";
 
 export class GameObject {
 
     private _isVisable: boolean = true;
 
     constructor(
-        protected _sprite: Sprite, 
-        protected _pos: Vector, 
-        protected _animations: Animation[] = [],
+        protected _sprite: SpriteRenderer,
+        protected _pos: Vector,
+        protected _dim: Dimension,
+        // protected _collision: boolean,
     ) {}
 
     get visable(): boolean {
@@ -32,25 +32,19 @@ export class GameObject {
     }
 
     get width(): number {
-        return this._sprite.width;
+        return this._dim.width;
     }
 
     get height(): number {
-        return this._sprite.height;
+        return this._dim.height;
     }
 
     get collider(): Collider {
-        return new Collider(
-            this._pos,
-            new Dimension(
-                this.width, 
-                this.height
-            )
-        );
+        return new Collider(this._pos, this._dim);
     }
 
 	update(delta: number) {
-        this._animations.forEach(animation => animation.update(delta));
+        this._sprite.update(delta);
     }
 
 	draw(context: CanvasRenderingContext2D, camera: Camera) {

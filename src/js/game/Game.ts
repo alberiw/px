@@ -1,8 +1,9 @@
 import { GameObject } from "../engine/GameObject";
+import { Animation } from "../engine/Animation";
 import { Camera } from "../engine/Camera";
 import { Vector } from "../engine/Vector";
 import { Dimension } from "../engine/Dimension";
-import { Sprite } from "../engine/Sprite";
+import { Sprite, SpriteBuilder } from "../engine/Sprite";
 import { Asset } from "../engine/Asset";
 import { Engine } from "../engine/Engine";
 import { Loader } from "../engine/Loader";
@@ -33,19 +34,26 @@ export class Game {
         );
         this._loader.add(playerAsset);
 
+        const playerAnimation = new Animation(
+            new SpriteBuilder(playerAsset).columns(3).rows(1).dim(new Dimension(32, 32)).build(),
+            [1, 0, 1, 2],
+            120,
+        )
+
         const player: Player = new Player(
-            this._engine,
-            new Sprite(
-                playerAsset,
-                1, 0,
-                new Dimension(32, 32)
-                // 0, 3, 0, 4,
-                // [1, 0, 1, 2]
-            ),
+            playerAnimation,
+            // new Sprite(
+            //     playerAsset,
+            //     1, 0,
+            //     new Dimension(32, 32),
+            //     // 0, 3, 0, 4,
+            //     // [1, 0, 1, 2]
+            // ),
             new Vector(250, 250),
+            new Dimension(32, 32),
+            true,
             null,
             0.1,
-            true,
             camera,
         );
         this._engine.add(player);
@@ -61,7 +69,7 @@ export class Game {
         const tree: GameObject = new GameObject(
             new Sprite(treeAsset),
             new Vector(100, 100),
-            [],
+            new Dimension(32, 64),
         )
         this._engine.add(tree);
 
