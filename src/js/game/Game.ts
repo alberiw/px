@@ -7,11 +7,11 @@ import { Sprite, SpriteBuilder } from "../engine/Sprite";
 import { Asset } from "../engine/Asset";
 import { Engine } from "../engine/Engine";
 import { Loader } from "../engine/Loader";
-
-import { Control } from "./Control";
-import { Player } from "./Player";
 import { CollisionManager } from "../engine/CollisionManager";
+import { StateMachine } from "../engine/Animator";
 
+import { Control, Key } from "./Control";
+import { Player } from "./Player";
 
 export class Game {
 
@@ -34,21 +34,53 @@ export class Game {
         );
         this._loader.add(playerAsset);
 
-        const playerAnimation = new Animation(
-            new SpriteBuilder(playerAsset).columns(3).rows(1).dim(new Dimension(32, 32)).build(),
+        //default
+        const playerSprite = new Sprite(
+            playerAsset,
+            1, 0,
+            new Dimension(32, 32),
+        )
+
+        //dawn
+        const playerAnimation1 = new Animation(
+            new SpriteBuilder(playerAsset).firstColumn(0).columns(3).firstRow(0).rows(1).dim(new Dimension(32, 32)).build(),
             [1, 0, 1, 2],
             120,
         )
 
+        //left
+        const playerAnimation2 = new Animation(
+            new SpriteBuilder(playerAsset).firstColumn(0).columns(3).firstRow(1).rows(1).dim(new Dimension(32, 32)).build(),
+            [1, 0, 1, 2],
+            120,
+        )
+
+        //right
+        const playerAnimation3 = new Animation(
+            new SpriteBuilder(playerAsset).firstColumn(0).columns(3).firstRow(2).rows(1).dim(new Dimension(32, 32)).build(),
+            [1, 0, 1, 2],
+            120,
+        )
+
+        //up
+        const playerAnimation4 = new Animation(
+            new SpriteBuilder(playerAsset).firstColumn(0).columns(3).firstRow(3).rows(1).dim(new Dimension(32, 32)).build(),
+            [1, 0, 1, 2],
+            120,
+        )
+
+        const animator = new StateMachine(playerSprite);
+        animator.addState(playerAnimation1);
+        animator.addState(playerAnimation2);
+        animator.addState(playerAnimation3);
+        animator.addState(playerAnimation4);
+        animator.addTransition([e => e.get("keys").includes(Key.DOWN), playerAnimation1]);
+        animator.addTransition([e => e.get("keys").includes(Key.LEFT), playerAnimation2]);
+        animator.addTransition([e => e.get("keys").includes(Key.RIGHT), playerAnimation3]);
+        animator.addTransition([e => e.get("keys").includes(Key.UP), playerAnimation4]);
+
         const player: Player = new Player(
-            playerAnimation,
-            // new Sprite(
-            //     playerAsset,
-            //     1, 0,
-            //     new Dimension(32, 32),
-            //     // 0, 3, 0, 4,
-            //     // [1, 0, 1, 2]
-            // ),
+            animator,
             new Vector(250, 250),
             new Dimension(32, 32),
             true,

@@ -1,6 +1,13 @@
 import { Direction } from "./Direction";
 import { Player } from "./Player";
 
+declare global {
+    var keys: number[];
+}
+
+//TODO replace by Input with static method 
+globalThis.keys = [];
+
 export enum Key {
     UP = 38,
     DOWN = 40,
@@ -14,11 +21,14 @@ export class Control {
         this._listner();
     }
 
+    //TODO change keyCode to key ?? code ?? keyCode
     private _listner = () => {
         const player = this._player;
 
         window.onkeydown = (e: KeyboardEvent) => {
-            const key = e.keyCode ? e.keyCode : e.which;
+            const key = e.keyCode ?? e.which;
+            globalThis.keys.push(key);
+            console.log(`${key} - ${e.key} - ${e.code}`);
             switch (key) {
                 case Key.LEFT: {
                     player.direction = Direction.LEFT;
@@ -40,7 +50,8 @@ export class Control {
         };
         
         window.onkeyup = (e: KeyboardEvent) => {
-            const key = e.keyCode ? e.keyCode : e.which
+            const key = e.keyCode ?? e.which
+            globalThis.keys = globalThis.keys.filter(e => e !== key);
             switch (key) {
                 case Key.LEFT: {
                     if (player.direction === Direction.LEFT) {

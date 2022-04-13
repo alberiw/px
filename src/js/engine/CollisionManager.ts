@@ -7,7 +7,7 @@ import { Vector } from "./Vector";
 export class CollisionManager {
 
     constructor(
-        private _gameObjects: GameObject[]
+        private _gameObjects: GameObject[],
     ) {}
 
     chackCollision(gameObject1: GameObject, target: Vector): Vector {

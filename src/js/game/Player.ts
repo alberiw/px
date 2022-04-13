@@ -5,6 +5,7 @@ import { Camera } from "../engine/Camera";
 import { CollisionManager } from "../engine/CollisionManager";
 import { Dimension } from "../engine/Dimension";
 import { SpriteRenderer } from "../engine/SpriteRenderer";
+import { StateMachine } from "../engine/Animator";
 
 export class Player extends GameObject {
 
@@ -35,6 +36,9 @@ export class Player extends GameObject {
     }
 
     update(delta: number) {
+        if (this._sprite instanceof StateMachine) {
+            this._sprite.setParmeter("keys", globalThis.keys);
+        }
         super.update(delta);
         switch (this._direction) {
             case Direction.LEFT: {

@@ -40,16 +40,28 @@ export class Sprite implements SpriteRenderer {
 
 export class SpriteBuilder {
 
+    private _firstColumn: number = 0;
     private _columns: number = 1;
+    private _firstRow: number = 0;
     private _rows: number = 1;
     private _dim: Dimension = this._asset.dim;
 
     constructor(
-        private _asset: Asset
+        private _asset: Asset,
     ) {}
+
+    firstColumn(firstColumn: number): SpriteBuilder {
+        this._firstColumn = firstColumn;
+        return this;
+    }
 
     columns(columns: number): SpriteBuilder {
         this._columns = columns;
+        return this;
+    }
+
+    firstRow(firstRow: number): SpriteBuilder {
+        this._firstRow = firstRow;
         return this;
     }
 
@@ -65,8 +77,8 @@ export class SpriteBuilder {
 
     build(): Sprite[] {
         const sprites: Sprite[] = [];
-        for (let x = 0; x < this._columns; x++) {
-            for (let y = 0; y < this._rows; y++) {
+        for (let x = this._firstColumn; x < this._firstColumn + this._columns; x++) {
+            for (let y = this._firstRow; y < this._firstRow + this._rows; y++) {
                 sprites.push(new Sprite(this._asset, x, y, this._dim));
             }
         }
