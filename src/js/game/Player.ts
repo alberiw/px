@@ -5,8 +5,6 @@ import { Dimension } from "../engine/Dimension";
 import { SpriteRenderer } from "../engine/SpriteRenderer";
 import { StateMachine } from "../engine/Animator";
 import { Input } from "../engine/Input";
-
-import { Direction } from "./Direction";
 import { KeyCode } from "../engine/KeyCode";
 
 export class Player extends GameObject {
@@ -17,18 +15,9 @@ export class Player extends GameObject {
         sprite: SpriteRenderer, 
         pos: Vector, 
         dim: Dimension, 
-        private _direction: Direction, 
         private _velocity: number, 
     ) {
         super(sprite, pos, dim);
-    }
-
-    get direction(): Direction {
-        return this._direction;
-    }
-
-    set direction(direction: Direction) {
-        this._direction = direction;
     }
 
     set collisionManger(collisionManager: CollisionManager) {
@@ -38,35 +27,23 @@ export class Player extends GameObject {
     update(delta: number) {
         if (this._sprite instanceof StateMachine) {
             this._sprite.setParmeter("keys", Input.keys);
+            this._sprite.setParmeter("x", Input.getAxis("x"));
+            this._sprite.setParmeter("y", Input.getAxis("y"));
         }
-        if (Input.keys.length == 0) {
-            this._direction = null;
-        } else if (!Input.keys.some(e => e === this._direction)) {
-            this._direction = Input.keys.find(e => KeyCode.ArrowLeft <= e && e <= KeyCode.ArrowDown);
+
+        const x = this._pos.x + Input.getAxis("x") * this._velocity * delta;
+        const y = this._pos.y + Input.getAxis("y") * this._velocity * delta;
+
+        //TODO
+        //this._pos = this._collisionManager.chackCollision(this, new Vector(x, y));
+        const direction = Input.keys.find(e => KeyCode.ArrowLeft <= e && e <= KeyCode.ArrowDown)
+        if (direction == KeyCode.ArrowLeft || direction == KeyCode.ArrowRight) {
+            this._pos = this._collisionManager.chackCollision(this, new Vector(x, this._pos.y));
+        } else {
+            this._pos = this._collisionManager.chackCollision(this, new Vector(this._pos.x, y));
         }
+
         super.update(delta);
-        switch (this._direction) {
-            case Direction.LEFT: {
-                const pos = new Vector(this._pos.x - this._velocity * delta, this.pos.y)
-                this._pos = this._collisionManager.chackCollision(this, pos);
-                break;
-            }
-            case Direction.TOP: {
-                const pos = new Vector(this._pos.x, this.pos.y - this._velocity * delta)
-                this._pos = this._collisionManager.chackCollision(this, pos);
-                break;
-            }
-            case Direction.RIGHT: {
-                const pos = new Vector(this._pos.x + this._velocity * delta, this.pos.y)
-                this._pos = this._collisionManager.chackCollision(this, pos);
-                break;
-            }
-            case Direction.DOWN: {
-                const pos = new Vector(this._pos.x, this.pos.y + this._velocity * delta)
-                this._pos = this._collisionManager.chackCollision(this, pos);
-                break;
-            }
-        }
     }
     
 }

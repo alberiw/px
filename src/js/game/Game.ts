@@ -8,7 +8,6 @@ import { Engine } from "../engine/Engine";
 import { Loader } from "../engine/Loader";
 import { CollisionManager } from "../engine/CollisionManager";
 import { StateMachine } from "../engine/Animator";
-import { KeyCode } from "../engine/KeyCode";
 
 import { Player } from "./Player";
 
@@ -67,16 +66,15 @@ export class Game {
         animator.addState(playerAnimation2);
         animator.addState(playerAnimation3);
         animator.addState(playerAnimation4);
-        animator.addTransition([e => e.get("keys").includes(KeyCode.ArrowDown), playerAnimation1]);
-        animator.addTransition([e => e.get("keys").includes(KeyCode.ArrowLeft), playerAnimation2]);
-        animator.addTransition([e => e.get("keys").includes(KeyCode.ArrowRight), playerAnimation3]);
-        animator.addTransition([e => e.get("keys").includes(KeyCode.ArrowUp), playerAnimation4]);
+        animator.addTransition([e => e.get("y") > 0, playerAnimation1]);
+        animator.addTransition([e => e.get("x") < 0, playerAnimation2]);
+        animator.addTransition([e => e.get("x") > 0, playerAnimation3]);
+        animator.addTransition([e => e.get("y") < 0, playerAnimation4]);
 
         const player: Player = new Player(
             animator,
             new Vector(250, 250),
             new Dimension(32, 32),
-            null,
             0.1,
         );
         this._engine.add(player);

@@ -26,9 +26,11 @@ export class StateMachine implements SpriteRenderer {
     }
 
     update(delta: number) {
-        const transition = this._transitions.find(e => e[0](this._prameters) === true);
-        if (transition) {
-            this._state = transition[1];
+        const transitions = this._transitions.filter(e => e[0](this._prameters) === true);
+        if (transitions.length > 0) {
+            if (!transitions.map(e => e[1]).includes(this._state)) {
+                this._state = transitions[0][1];
+            }
         } else {
             this._state = this._default;
         }
