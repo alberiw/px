@@ -1,6 +1,5 @@
 import { GameObject } from "../engine/GameObject";
 import { Vector } from "../engine/Vector";
-import { Camera } from "../engine/Camera";
 import { CollisionManager } from "../engine/CollisionManager";
 import { Dimension } from "../engine/Dimension";
 import { SpriteRenderer } from "../engine/SpriteRenderer";
@@ -18,10 +17,8 @@ export class Player extends GameObject {
         sprite: SpriteRenderer, 
         pos: Vector, 
         dim: Dimension, 
-        collision: boolean, 
         private _direction: Direction, 
-        private _speed: number, 
-        private _camera: Camera, 
+        private _velocity: number, 
     ) {
         super(sprite, pos, dim);
     }
@@ -50,22 +47,22 @@ export class Player extends GameObject {
         super.update(delta);
         switch (this._direction) {
             case Direction.LEFT: {
-                const pos = new Vector(this._pos.x - this._speed * delta, this.pos.y)
+                const pos = new Vector(this._pos.x - this._velocity * delta, this.pos.y)
                 this._pos = this._collisionManager.chackCollision(this, pos);
                 break;
             }
             case Direction.TOP: {
-                const pos = new Vector(this._pos.x, this.pos.y - this._speed * delta)
+                const pos = new Vector(this._pos.x, this.pos.y - this._velocity * delta)
                 this._pos = this._collisionManager.chackCollision(this, pos);
                 break;
             }
             case Direction.RIGHT: {
-                const pos = new Vector(this._pos.x + this._speed * delta, this.pos.y)
+                const pos = new Vector(this._pos.x + this._velocity * delta, this.pos.y)
                 this._pos = this._collisionManager.chackCollision(this, pos);
                 break;
             }
             case Direction.DOWN: {
-                const pos = new Vector(this._pos.x, this.pos.y + this._speed * delta)
+                const pos = new Vector(this._pos.x, this.pos.y + this._velocity * delta)
                 this._pos = this._collisionManager.chackCollision(this, pos);
                 break;
             }

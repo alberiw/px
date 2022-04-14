@@ -31,18 +31,18 @@ export class Asset implements Loadable {
 
     load(): Promise<HTMLImageElement> {
         return new Promise((resolve, reject) => {
-            const img: HTMLImageElement = this._createImage(this._dim);
+            const img = this._createImage(this._dim);
             img.src = this._basePath + this._path;
-            img.addEventListener("load", () => {
+            img.onload = () => {
                 this._isLoaded = true;
                 this._dim.width = img.width;
                 this._dim.height = img.height;
                 this._img = img;
                 resolve(img);
-            });
-            img.addEventListener("error", () => {
-                reject(new Error(`${img.src} failed to load.`));
-            });
+            };
+            img.onerror = () => {
+               reject(new Error(`${img.src} failed to load.`));
+            };
         });
     }
 }

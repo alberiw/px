@@ -1,5 +1,4 @@
 import { GameObject } from "./GameObject";
-import { Camera } from "./Camera";
 import { Loader } from "./Loader";
 
 export class Engine {
@@ -13,7 +12,6 @@ export class Engine {
     private _delta = 0;
     private _timestep = 1000 / this._maxFps;
 
-    private _camera: Camera;
     private _gameObjects: GameObject[];
 
     constructor() {
@@ -28,14 +26,8 @@ export class Engine {
         return this._gameObjects;
     }
 
-    add(camera: Camera)
-    add(gameObject: GameObject)
-    add(input: Camera | GameObject) {
-        if (input instanceof Camera) {
-            this._camera = input;
-        } else {
-            this._gameObjects.push(input);
-        }
+    add(gameObject: GameObject) {
+        this._gameObjects.push(gameObject);
     }
 
     start(loader: Loader) {
@@ -55,7 +47,7 @@ export class Engine {
     private _draw(delta: number) {
         this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
         this._gameObjects.forEach(gameObject => {
-            gameObject.draw(this._context, this._camera);
+            gameObject.draw(this._context);
         })
     }
 

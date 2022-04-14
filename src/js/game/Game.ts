@@ -1,6 +1,5 @@
 import { GameObject } from "../engine/GameObject";
 import { Animation } from "../engine/Animation";
-import { Camera } from "../engine/Camera";
 import { Vector } from "../engine/Vector";
 import { Dimension } from "../engine/Dimension";
 import { Sprite, SpriteBuilder } from "../engine/Sprite";
@@ -21,12 +20,6 @@ export class Game {
     constructor() {
         this._engine = new Engine();
         this._loader = new Loader();
-
-        const camera = new Camera(
-            new Vector(0, 0),
-            new Dimension(500, 500),
-        );
-        this._engine.add(camera);
 
         const playerAsset = new Asset(
             "character.png",
@@ -83,14 +76,10 @@ export class Game {
             animator,
             new Vector(250, 250),
             new Dimension(32, 32),
-            true,
             null,
             0.1,
-            camera,
         );
         this._engine.add(player);
-        // new Control(player);
-        // Input.listner();
 
         const treeAsset = new Asset(
             "tree.png",
