@@ -35,8 +35,7 @@ export class Asset implements Loadable {
             img.src = this._basePath + this._path;
             img.onload = () => {
                 this._isLoaded = true;
-                this._dim.width = img.width;
-                this._dim.height = img.height;
+                this._dim = new Dimension(img.width, img.height);
                 this._img = img;
                 resolve(img);
             };
