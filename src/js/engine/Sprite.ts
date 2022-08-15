@@ -9,15 +9,15 @@ export class Sprite implements SpriteRenderer {
         private _asset: Asset,
         private _frameIndexX: number = 0,
         private _frameIndexY: number = 0,
-        private _dim: Dimension = _asset.dim,
+        private _dim?: Dimension,
     ) {}
 
     get width(): number {
-        return this._dim.width;
+        return this._dim?.width ?? this._asset.dim.width;
     }
 
     get height(): number {
-        return this._dim.height;
+        return this._dim?.height ?? this._asset.dim.height;
     }
 
     update(delta: number) {}
