@@ -1,3 +1,4 @@
+import { TileMap } from "./TileMap";
 import { GameObject } from "./GameObject";
 import { Loader } from "./Loader";
 
@@ -12,6 +13,7 @@ export class Engine {
     private _delta = 0;
     private _timestep = 1000 / this._maxFps;
 
+    private _tileMap: TileMap;
     private _gameObjects: GameObject[];
 
     constructor() {
@@ -22,12 +24,20 @@ export class Engine {
         this._gameObjects = [];
     }
 
+    get context(): CanvasRenderingContext2D {
+        return this._context;
+    }
+
     get gameObjects(): GameObject[] {
         return this._gameObjects;
     }
 
-    add(gameObject: GameObject) {
+    addGameObject(gameObject: GameObject) {
         this._gameObjects.push(gameObject);
+    }
+    
+    addTileMap(tileMap: TileMap) {
+        this._tileMap = tileMap;
     }
 
     start(loader: Loader) {
@@ -46,6 +56,7 @@ export class Engine {
 
     private _draw(delta: number) {
         this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
+        this._tileMap.draw(this._context);
         this._gameObjects.forEach(gameObject => {
             gameObject.draw(this._context);
         })

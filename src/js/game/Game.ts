@@ -8,6 +8,7 @@ import { Engine } from "../engine/Engine";
 import { Loader } from "../engine/Loader";
 import { CollisionManager } from "../engine/CollisionManager";
 import { StateMachine } from "../engine/Animator";
+import { TileMap } from "../engine/TileMap";
 
 import { Player } from "./Player";
 
@@ -77,7 +78,7 @@ export class Game {
             new Dimension(32, 32),
             0.1,
         );
-        this._engine.add(player);
+        this._engine.addGameObject(player);
 
         const treeAsset = new Asset(
             "tree.png",
@@ -91,10 +92,36 @@ export class Game {
             new Vector(100, 100),
             new Dimension(32, 64),
         )
-        this._engine.add(tree);
+        this._engine.addGameObject(tree);
 
         const collisionManager = new CollisionManager(this._engine.gameObjects);
         player.collisionManger = collisionManager;
+
+        const template = [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        ]
+        const tilesAsset = new Asset(
+            "tiles.gif",
+            new Dimension(288, 288),
+        );
+        this._loader.add(tilesAsset);
+        const tileMap = new TileMap(
+            tilesAsset,
+            new Dimension(16, 16),
+            template,
+        );
+        this._engine.addTileMap(tileMap);
     }
 
     run() {
